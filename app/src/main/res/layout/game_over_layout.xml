@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#ffff1700">
+
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Game Over"
+        android:id="@+id/textView2"
+        android:layout_weight="1"
+        android:textSize="60dp"
+        android:gravity="center_vertical|center_horizontal"
+        android:textIsSelectable="true" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:text="Voulez-vous rejouer ?"
+        android:id="@+id/textView"
+        android:textAlignment="center"
+        android:layout_gravity="center_horizontal"
+        android:textSize="40dp"
+        android:layout_weight="1"
+        android:textStyle="normal"
+        android:gravity="center_vertical|center_horizontal" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:gravity="center_vertical|center_horizontal">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:text="Oui"
+            android:id="@+id/btnOui"
+            android:layout_weight="1"
+            android:layout_margin="20dp"
+            android:background="#ffff7b68" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:text="Non"
+            android:id="@+id/btnNon"
+            android:layout_gravity="center|right"
+            android:layout_weight="1"
+            android:gravity="center_vertical|center_horizontal"
+            android:layout_margin="20dp"
+            android:background="#ffff7b68" />
+    </LinearLayout>
+
+</LinearLayout>

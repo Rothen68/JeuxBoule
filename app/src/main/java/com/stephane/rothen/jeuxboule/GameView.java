@@ -339,21 +339,8 @@ public class GameView extends View {
             canvas.drawText(texte,20,60,p);
             p.setTextSize(100);
             canvas.drawText("GAME OVER",0,9,canvas.getWidth()/2-280,canvas.getHeight()/2,p);
-            AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
-            alert.setTitle("Game Over");
-            alert.setMessage("Voulez-vous rejouer ?");
-            alert.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                    // Do something with value!
-                    resetJeux();
-                }
-            });
-            alert.setNegativeButton("Non", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                    System.exit(1);
-                }
-            });
-            alert.show();
+
+
 
         }
 
@@ -569,5 +556,10 @@ public class GameView extends View {
         p.setARGB(255,0,255,125);
         p.setTextSize(40);
         this.invalidate();
+    }
+
+    public boolean getGameOver()
+    {
+        return gameOver;
     }
 }

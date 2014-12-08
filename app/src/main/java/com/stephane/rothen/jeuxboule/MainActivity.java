@@ -1,5 +1,6 @@
 package com.stephane.rothen.jeuxboule;
 
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
@@ -21,6 +22,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     private Timer timer;
     private TimerTask timerTask;
     private double vecteurAcc[]={0.0,0.0};
+    private boolean dialogGameOver;
 
 
     @Override
@@ -31,7 +33,15 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         sensorManager=(SensorManager) this.getSystemService(SENSOR_SERVICE);
         gv = (com.stephane.rothen.jeuxboule.GameView) findViewById(R.id.gameView1);
         gv.ajouterActeurAnime(500,250,R.drawable.bille,1,1,0.0,0.04);
+        setTimer();
 
+        dialogGameOver=false;
+
+
+    }
+
+    private void setTimer()
+    {
         timer = new Timer();
         timerTask = new TimerTask()
         {
@@ -46,10 +56,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             }
         };
         timer.schedule(timerTask,500,10);
-
-
     }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -89,6 +96,18 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         vecteurAcc[0]= event.values[0];
         vecteurAcc[1]=event.values[1];
         gv.setVecteurAcc(vecteurAcc);
+        if (gv.getGameOver()&&!dialogGameOver)
+        {
+            timer.cancel();
+            afficheGameOver();
+        }
+    }
+
+    private void afficheGameOver()
+    {
+        Intent i = new Intent(this,com.stephane.rothen.jeuxboule.GameOverActivity.class);
+        startActivityForResult(i, 42);
+        dialogGameOver=true;
     }
 
     @Override
@@ -96,5 +115,27 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode==42)
+        {
 
+            if (data!=null)
+            {
+                if(data.getBooleanExtra(GameOverActivity.EXTRA_CHOIX,false))
+                {
+                    // si l'utilisateur veux rejouer
+                    gv.resetJeux();
+                    dialogGameOver=false;
+                    setTimer();
+                }
+                else
+                {
+                    android.os.Process.killProcess(android.os.Process.myPid());
+                }
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+
+    }
 }
