@@ -1,6 +1,8 @@
 package com.stephane.rothen.jeuxboule;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -11,6 +13,7 @@ import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.View;
+import android.widget.EditText;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -156,7 +159,14 @@ public class GameView extends View {
     public static final int VIBREUR_POSITIF = 50;
     public static final int VIBREUR_NEGATIF = 100;
     public static final int VIBREUR_ALERTE = 10;
+
+    /**
+     * nombre d'alerte vibreur avant changement d'état des barres
+     */
     private static final int VIBREUR_NBRE_ALERTE = 3;
+    /**
+     * etat actuel du nombre de repetition d'alerte avant changement d'état des barres
+     */
     private int posVibreurAlerte;
 
     /**
@@ -329,23 +339,21 @@ public class GameView extends View {
             canvas.drawText(texte,20,60,p);
             p.setTextSize(100);
             canvas.drawText("GAME OVER",0,9,canvas.getWidth()/2-280,canvas.getHeight()/2,p);
-            /*AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+            AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
             alert.setTitle("Game Over");
-            alert.setMessage("Entrez votre pseudo :");
-            // Set an EditText view to get user input
-            final EditText input = new EditText(getContext());
-            alert.setView(input);
-            alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            alert.setMessage("Voulez-vous rejouer ?");
+            alert.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
-                    String value = input.getText().toString();
                     // Do something with value!
+                    resetJeux();
                 }
             });
-            alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            alert.setNegativeButton("Non", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
+                    System.exit(1);
                 }
             });
-            alert.show();*/
+            alert.show();
 
         }
 
@@ -544,5 +552,22 @@ public class GameView extends View {
     public SparseArray<Acteur> getLesActeurs()
     {
         return lesActeurs;
+    }
+
+    /**
+     * permet de réinitialiser le jeux
+     */
+    public void resetJeux()
+    {
+        score = 0;
+        tempsRestant=1000;
+        delaisBarre=0;
+        coefDelaisBarre=rand.nextInt(5);
+        topTemps = 0;
+        gameOver=false;
+        posVibreurAlerte=VIBREUR_NBRE_ALERTE;
+        p.setARGB(255,0,255,125);
+        p.setTextSize(40);
+        this.invalidate();
     }
 }
