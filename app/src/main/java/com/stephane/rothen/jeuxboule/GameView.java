@@ -146,15 +146,23 @@ public class GameView extends View {
      */
     private String texte;
 
-
+    /**
+     * Permet d'acceder au vibreur
+     */
     private Vibrator vibreur;
+    /**
+     * constante, durées de vibration
+     */
     public static final int VIBREUR_POSITIF = 50;
     public static final int VIBREUR_NEGATIF = 100;
     public static final int VIBREUR_ALERTE = 10;
     private static final int VIBREUR_NBRE_ALERTE = 3;
     private int posVibreurAlerte;
 
-    private static final int MULTIBOULES []=new int[] {1000,5000,10000,20000};
+    /**
+     * spécifie les différentes valeurs pour l'ajout de boule en fonction du score
+     */
+    private static final int MULTIBOULES []=new int[] {1000,5000,10000,20000,40000};
 
 
     /**
