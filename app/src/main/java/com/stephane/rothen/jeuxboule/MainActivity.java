@@ -30,7 +30,6 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
         sensorManager=(SensorManager) this.getSystemService(SENSOR_SERVICE);
         gv = (com.stephane.rothen.jeuxboule.GameView) findViewById(R.id.gameView1);
-        //gv.ajouterActeur(0,0,R.drawable.bille);
         gv.ajouterActeurAnime(500,250,R.drawable.bille,1,1,0.0,0.04);
 
         timer = new Timer();

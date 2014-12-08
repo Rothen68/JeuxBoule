@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.hardware.SensorEvent;
+import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.View;
@@ -15,64 +16,182 @@ import java.util.ArrayList;
 import java.util.Random;
 
 /**
- * Created by rcdsm11 on 01/12/2014.
+ * Classe principale de JeuxBoule
+ *
+ * Created by Stephane Rothen on 01/12/2014.
  */
 public class GameView extends View {
+    /**
+     * SparseArray contenant les acteurs du jeux
+     */
     private SparseArray<Acteur> lesActeurs;
+    /**
+     * SparseArray contenant les différentes images des acteurs du jeux
+     */
     private SparseArray<Bitmap> lstRessources;
+    /**
+     * Instance de la classe Context lié à l'application
+     */
     private Context c;
+    /**
+     * Paint spécifique à la classe
+     */
     private Paint p;
+    /**
+     * permet de faire le lien entre l'accéléromètre et la classe
+     */
     private double vecteurAcc[]={0.0,0.0};
 
+    /**
+     * Constante, état du bord du jeux, augmente le score et le temps
+     */
     public static final int POSITIF =1;
+    /**
+     * Constante, état du bord du jeux, pas d'action significative
+     */
     public static final int INACTIF =3;
+    /**
+     * Constante, état du bord du jeux, diminue le temps
+     */
     public static final int NEGATIF =2;
+
+    /**
+     * Constante, identifie les bords du jeux
+     */
     public static final int HAUT =0;
+    /**
+     * Constante, identifie les bords du jeux
+     */
     public static final int BAS =1;
+    /**
+     * Constante, identifie les bords du jeux
+     */
     public static final int GAUCHE =2;
+    /**
+     * Constante, identifie les bords du jeux
+     */
     public static final int DROITE =3;
 
+    /**
+     * Constante, définit la couleur du texte
+     */
     private static final int COULEUR_TEXTE = Color.rgb(0,0,255);
+    /**
+     * Constante, définit la couleur d'un bord lorsqu'il est positif
+     */
     private static final int COULEUR_BARRE_POSITIF = Color.rgb(255,0,0);
+    /**
+     * Constante, définit la couleur d'un bord lorsqu'il est negatif
+     */
     private static final int COULEUR_BARRE_NEGATIF = Color.rgb(0,255,0);
+    /**
+     * Constante, définit la couleur d'un bord lorsqu'il est inactif
+     */
     private static final int COULEUR_BARRE_INACTIF = Color.rgb(0,0,0);
 
+    /**
+     * Constante, définit le facteur de délais pour le changement d'état des bords
+     */
     private static final int DELAIS_CHGMT_BARRE = 100;
+    /**
+     * Délais actuel avant changement d'état des bords
+     */
     private int delaisBarre;
+    /**
+     * Coefficient multipliant le facteur de délais pour le changement d'état des bords
+     */
     private int coefDelaisBarre;
+    /**
+     * Objet Random pour les fonctions aléatoires
+     */
     private Random rand;
 
-
-    public static final int SCORE_COEF_MALLUS_TEMPS = 100;
+    /**
+     * Constante, facteur de malus de temps
+     */
+    public static final int SCORE_COEF_MALUS_TEMPS = 100;
+    /**
+     * Constante, facteur de bonus de temps
+     */
     public static final int SCORE_COEF_BONUS_TEMPS = 20;
+    /**
+     * Constante, facteur de bonus de score
+     */
     public static final int SCORE_COEF_BONUS_SCORE = 10;
 
+    /**
+     * Contient les états des bords du jeux
+     */
     private int barre[];
 
+    /**
+     * Score actuel
+     */
     private int score;
+    /**
+     * Temps restant avant game over
+     */
     private int tempsRestant;
+    /**
+     * permet de compter le nombre de frames avant la décrémentation du temps
+     */
     private int topTemps;
+    /**
+     * Si Game Over
+     */
     private boolean gameOver;
-    private int fonduGameOver;
-    private int coefFonduGameOver;
+
+    /**
+     * Chaine de caractere permettant d'afficher le score et le temps restant
+     */
     private String texte;
 
+
+    private Vibrator vibreur;
+    public static final int VIBREUR_POSITIF = 50;
+    public static final int VIBREUR_NEGATIF = 100;
+    public static final int VIBREUR_ALERTE = 10;
+    private static final int VIBREUR_NBRE_ALERTE = 3;
+    private int posVibreurAlerte;
+
+    private static final int MULTIBOULES []=new int[] {1000,5000,10000,20000};
+
+
+    /**
+     * Constructeur
+     * @param context
+     */
     public GameView(Context context) {
         super(context);
         initView(context);
     }
 
+    /**
+     * Constructeur
+     * @param context
+     * @param attrs
+     */
     public GameView(Context context, AttributeSet attrs) {
         super(context, attrs);
         initView(context);
     }
 
+    /**
+     * Constructeur
+     * @param context
+     * @param attrs
+     * @param defStyleAttr
+     */
     public GameView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initView(context);
     }
 
 
+    /**
+     * initialise les données membres de la classe
+     * @param context
+     */
     private void initView(Context context)
     {
         lesActeurs= new SparseArray<Acteur>();
@@ -90,12 +209,23 @@ public class GameView extends View {
         coefDelaisBarre=rand.nextInt(5);
         topTemps = 0;
         gameOver=false;
-        fonduGameOver=100;
-        coefFonduGameOver=-1;
+
+
+        vibreur = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        posVibreurAlerte=VIBREUR_NBRE_ALERTE;
 
 
     }
 
+    /**
+     * Ajoute un acteur au jeux
+     * @param x
+     *      position de l'acteur sur l'axe x
+     * @param y
+     *      position de l'acteur sur l'axe y
+     * @param image
+     *      index de l'image de l'acteur dans les ressources
+     */
     public void ajouterActeur(double x, double y, int image)
     {
         //recherche si l'image est déjà référencée
@@ -117,6 +247,24 @@ public class GameView extends View {
         lesActeurs.append(lesActeurs.size(), new Acteur(x, y, index));
 
     }
+
+    /**
+     * Permet d'ajouter un acteur animé
+     * @param x
+     *      position de l'acteur sur l'axe x
+     * @param y
+     *      position de l'acteur sur l'axe y
+     * @param image
+     *      index de l'image de l'acteur dans les ressources
+     * @param vX
+     *      vitesse de l'acteur sur l'axe x
+     * @param vY
+     *      vitesse de l'acteur sur l'axe y
+     * @param aX
+     *      accélération de l'acteur sur l'axe x
+     * @param aY
+     *      accélération de l'acteur sur l'axe y
+     */
     public void ajouterActeurAnime(double x, double y, int image,double vX,double vY,double aX, double aY)
     {
         //recherche si l'image est déjà référencée
@@ -138,6 +286,12 @@ public class GameView extends View {
         lesActeurs.append(lesActeurs.size(), new ActeurAnimé(x, y, index,vX,vY,aX,aY));
     }
 
+
+    /**
+     * Gère le dessin du jeux sur le canvas
+     * @param canvas
+     *      canvas sur lequel le jeux est dessiné
+     */
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -167,13 +321,38 @@ public class GameView extends View {
             canvas.drawText(texte,20,60,p);
             p.setTextSize(100);
             canvas.drawText("GAME OVER",0,9,canvas.getWidth()/2-280,canvas.getHeight()/2,p);
-
+            /*AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+            alert.setTitle("Game Over");
+            alert.setMessage("Entrez votre pseudo :");
+            // Set an EditText view to get user input
+            final EditText input = new EditText(getContext());
+            alert.setView(input);
+            alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    String value = input.getText().toString();
+                    // Do something with value!
+                }
+            });
+            alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                }
+            });
+            alert.show();*/
 
         }
 
 
     }
 
+    /**
+     * permet de définir l'état et affiche le bord dont l'index est passé en paramètre
+     * @param barre
+     *      index du bord
+     * @param etat
+     *      etat de la barre
+     * @param c
+     *      canvas sur lequel imprimer la barre
+     */
     private void setBarre(int barre, int etat, Canvas c)
     {
         switch (etat)
@@ -224,7 +403,10 @@ public class GameView extends View {
     }
 
 
-
+    /**
+     * Permet de gérer l'actualisation des paramètres des acteurs
+     * @return
+     */
     public Boolean onTimeOut()
     {
         boolean update = false;
@@ -239,6 +421,17 @@ public class GameView extends View {
                 this.invalidate();
 
             delaisBarre++;
+
+            if(delaisBarre>DELAIS_CHGMT_BARRE*coefDelaisBarre - 50*posVibreurAlerte) {
+
+                vibrer(VIBREUR_ALERTE);
+                if(posVibreurAlerte>0)
+                    posVibreurAlerte--;
+                else
+                    posVibreurAlerte=VIBREUR_NBRE_ALERTE+1;
+
+            }
+
             if (delaisBarre > DELAIS_CHGMT_BARRE * coefDelaisBarre) {
                 delaisBarre = 0;
                 for (int i = 0; i < 4; i++) {
@@ -247,7 +440,6 @@ public class GameView extends View {
                 this.invalidate();
                 coefDelaisBarre = rand.nextInt(10);
             }
-
             topTemps++;
             if (topTemps > 3)
             {
@@ -264,19 +456,38 @@ public class GameView extends View {
         return update;
     }
 
+    /**
+     * Renvois le tableau des vecteurs accélérations
+     * @return
+     */
     public double[] getVecteurAcc() {
         return vecteurAcc;
     }
 
+    /**
+     * Permet de définir les vecteurs accélération
+     * @param vecteurAcc
+     *      tableau contenant les nouvelles valeurs
+     */
     public void setVecteurAcc(double[] vecteurAcc) {
         this.vecteurAcc = vecteurAcc;
     }
-    
-    
+
+    /**
+     * Permet d'ajouter le temps passé en parameètre au temps du jeux
+     * @param temps
+     *      quantité de temps à ajouter
+     */
     public void ajouterTemps(int temps)
     {
         tempsRestant+=temps;
     }
+
+    /**
+     * Soustrait le temps passé en parametre au temps du jeux
+     * @param temps
+     *      quantité de temps à soustraire
+     */
     public void soustraireTemps(int temps)
     {
         tempsRestant-=temps;
@@ -286,12 +497,44 @@ public class GameView extends View {
             gameOver=true;
         }
     }
+
+    /**
+     * Renvois le tableau d'état des bords
+     * @return
+     */
     int[] getBarre()
     {
         return barre;
     }
+
+    /**
+     * Ajoute le score passé en parametre au score du jeux
+     * @param s
+     *      valeur de score à ajouter
+     */
     void ajouterScore(int s)
     {
         score +=s;
+    }
+
+    /**
+     * permet de faire vibrer le téléphone
+     * @param valeur
+     *      temps de vibration du téléphone
+     */
+    void vibrer(int valeur)
+    {
+
+        vibreur.vibrate(valeur);
+    }
+
+    /**
+     * renvois le tableau des acteurs
+     * @return
+     *      tableau des acteurs
+     */
+    public SparseArray<Acteur> getLesActeurs()
+    {
+        return lesActeurs;
     }
 }
