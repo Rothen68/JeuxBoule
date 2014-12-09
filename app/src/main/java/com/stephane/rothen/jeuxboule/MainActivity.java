@@ -6,6 +6,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -96,18 +97,23 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         vecteurAcc[0]= event.values[0];
         vecteurAcc[1]=event.values[1];
         gv.setVecteurAcc(vecteurAcc);
+        Log.d("test", "dans onSensorChanged gv.getGameOver :" + String.valueOf(gv.getGameOver()) + " dialogGameOver :" + String.valueOf(dialogGameOver) );
         if (gv.getGameOver()&&!dialogGameOver)
         {
+            sensorManager.unregisterListener(this);
             timer.cancel();
             afficheGameOver();
+
         }
     }
 
     private void afficheGameOver()
     {
         Intent i = new Intent(this,com.stephane.rothen.jeuxboule.GameOverActivity.class);
-        startActivityForResult(i, 42);
+        startActivityForResult(i, 1);
         dialogGameOver=true;
+
+        Log.d("test", "dans afficheGameOver");
     }
 
     @Override
@@ -116,22 +122,32 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+
+        gv.setQuitter(true);
+
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode==42)
+        if (requestCode==1)
         {
 
-            if (data!=null)
+            if (resultCode==RESULT_OK)
             {
-                if(data.getBooleanExtra(GameOverActivity.EXTRA_CHOIX,false))
+                String r = data.getStringExtra(GameOverActivity.EXTRA_CHOIX);
+                if(r.equals("oui"))
                 {
                     // si l'utilisateur veux rejouer
                     gv.resetJeux();
                     dialogGameOver=false;
                     setTimer();
                 }
-                else
+                else if (r.equals("non"))
                 {
-                    android.os.Process.killProcess(android.os.Process.myPid());
+                    gv.setQuitter(true);
+                    finish();
                 }
             }
         }

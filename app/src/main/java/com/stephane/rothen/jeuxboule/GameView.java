@@ -175,6 +175,8 @@ public class GameView extends View {
     private static final int MULTIBOULES []=new int[] {1000,5000,10000,20000,40000};
 
 
+    private boolean quitter;
+
     /**
      * Constructeur
      * @param context
@@ -227,12 +229,18 @@ public class GameView extends View {
         coefDelaisBarre=rand.nextInt(5);
         topTemps = 0;
         gameOver=false;
+        quitter=false;
 
 
         vibreur = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         posVibreurAlerte=VIBREUR_NBRE_ALERTE;
 
 
+    }
+
+    public void setQuitter(boolean quitter) {
+        this.quitter = quitter;
+        invalidate();
     }
 
     /**
@@ -331,7 +339,7 @@ public class GameView extends View {
             p.setColor(COULEUR_TEXTE);
             canvas.drawText(texte,20,60,p);
         }
-        else
+        else if ( gameOver)
         {
             canvas.drawColor(Color.argb(255,255,0,0));
             texte = "Score : " + String.valueOf(score);
@@ -339,10 +347,8 @@ public class GameView extends View {
             canvas.drawText(texte,20,60,p);
             p.setTextSize(100);
             canvas.drawText("GAME OVER",0,9,canvas.getWidth()/2-280,canvas.getHeight()/2,p);
-
-
-
         }
+
 
 
     }
@@ -556,6 +562,7 @@ public class GameView extends View {
         p.setARGB(255,0,255,125);
         p.setTextSize(40);
         this.invalidate();
+
     }
 
     public boolean getGameOver()

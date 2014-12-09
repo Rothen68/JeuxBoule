@@ -29,11 +29,11 @@ public class GameOverActivity extends ActionBarActivity implements View.OnClickL
         if ( v.getId() == R.id.btnOui)
         {
 
-            i.putExtra(EXTRA_CHOIX,true);
+            i.putExtra(EXTRA_CHOIX,"oui");
         }
         else if (v.getId() == R.id.btnNon)
         {
-            i.putExtra(EXTRA_CHOIX,false);
+            i.putExtra(EXTRA_CHOIX,"non");
 
         }
         setResult(RESULT_OK,i);
