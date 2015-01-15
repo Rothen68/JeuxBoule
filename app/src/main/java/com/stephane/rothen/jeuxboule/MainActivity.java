@@ -1,5 +1,6 @@
 package com.stephane.rothen.jeuxboule;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -11,12 +12,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import android.hardware.SensorEventListener;
+import android.view.View;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class MainActivity extends ActionBarActivity implements SensorEventListener {
+public class MainActivity extends ActionBarActivity implements SensorEventListener,        View.OnClickListener {
 
     private SensorManager sensorManager;
     private com.stephane.rothen.jeuxboule.GameView gv;
@@ -98,23 +100,17 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         vecteurAcc[1]=event.values[1];
         gv.setVecteurAcc(vecteurAcc);
         Log.d("test", "dans onSensorChanged gv.getGameOver :" + String.valueOf(gv.getGameOver()) + " dialogGameOver :" + String.valueOf(dialogGameOver) );
-        if (gv.getGameOver()&&!dialogGameOver)
+        if (gv.getGameOver())
         {
             sensorManager.unregisterListener(this);
             timer.cancel();
-            afficheGameOver();
+
+
 
         }
     }
 
-    private void afficheGameOver()
-    {
-        Intent i = new Intent(this,com.stephane.rothen.jeuxboule.GameOverActivity.class);
-        startActivityForResult(i, 1);
-        dialogGameOver=true;
 
-        Log.d("test", "dans afficheGameOver");
-    }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -129,29 +125,13 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode==1)
-        {
 
-            if (resultCode==RESULT_OK)
-            {
-                String r = data.getStringExtra(GameOverActivity.EXTRA_CHOIX);
-                if(r.equals("oui"))
-                {
-                    // si l'utilisateur veux rejouer
-                    gv.resetJeux();
-                    dialogGameOver=false;
-                    setTimer();
-                }
-                else if (r.equals("non"))
-                {
-                    gv.setQuitter(true);
-                    finish();
-                }
-            }
+    @Override
+    public void onClick(View v) {
+        if (gv.getGameOver())
+        {
+            gv.resetJeux();
         }
-        super.onActivityResult(requestCode, resultCode, data);
 
     }
 }

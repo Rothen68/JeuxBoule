@@ -561,6 +561,10 @@ public class GameView extends View {
         posVibreurAlerte=VIBREUR_NBRE_ALERTE;
         p.setARGB(255,0,255,125);
         p.setTextSize(40);
+        for(int i = 0 ; i < lesActeurs.size();i++)
+        {
+            ((ActeurAnimé) lesActeurs.get(i)).initActeur();
+        }
         this.invalidate();
 
     }

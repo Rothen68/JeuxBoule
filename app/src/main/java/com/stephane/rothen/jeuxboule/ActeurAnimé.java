@@ -8,6 +8,9 @@ package com.stephane.rothen.jeuxboule;
 public class ActeurAnimé extends Acteur {
 
     //parametre de vitesse et d'accélération
+    private double initX;
+    private double initY;
+
     /**
      * vitesse de l'acteur sur l'axe X
      */
@@ -58,6 +61,8 @@ public class ActeurAnimé extends Acteur {
      */
     public ActeurAnimé(double x, double y, int image) {
         super(x, y, image);
+        initX=x;
+        initY=y;
         vX=0;
         vY=0;
         aX=0;
@@ -190,5 +195,12 @@ public class ActeurAnimé extends Acteur {
         return true;
 
 
+    }
+
+    public void initActeur()
+    {
+        x=initX;
+        y=initY;
+        vX=vY=aX=aY=0;
     }
 }
